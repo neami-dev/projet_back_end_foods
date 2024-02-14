@@ -9,6 +9,11 @@ const getAllUsers = asyncWrapper(async (req, res, next) => {
     const users = await User.find({}, { __v: false });
     res.status(200).json({ status: httpStatusText.SUCCESS, data: users });
 });
+const getUser = asyncWrapper(async (req, res, next) => {
+    const id = req.params.id
+    const users = await User.findById(id, { __v: false,password:false });
+    res.status(200).json({ status: httpStatusText.SUCCESS, data: users });
+});
 
 const register = asyncWrapper(async (req, res, next) => {
     const {
@@ -42,14 +47,15 @@ const register = asyncWrapper(async (req, res, next) => {
         phoneNumber,
         role,
     });
-
+    
     const token = generateJWT({
-        email: newUser.newUser,
+        email: newUser.email,
         _id: newUser._id,
         role: newUser.role,
     });
     newUser.token = token;
     await newUser.save();
+
     res.status(201).json({
         status: httpStatusText.SUCCESS,
         data: { user: newUser },
@@ -57,7 +63,7 @@ const register = asyncWrapper(async (req, res, next) => {
 });
 const login = asyncWrapper(async (req, res, next) => {
     const { email, password } = req.body;
-
+  
     if (!email || !password) {
         const error = appError.create(
             "email and password required !",
@@ -67,7 +73,7 @@ const login = asyncWrapper(async (req, res, next) => {
         return next(error);
     }
     const user = await User.findOne({ email });
-    console.log(user);
+    console.log("user=",user);
     if (!user) {
         const error = appError.create(
             "user not found",
@@ -77,7 +83,9 @@ const login = asyncWrapper(async (req, res, next) => {
         return next(error);
     }
     const matchedPassword = await bcrypt.compare(password, user.password);
+
     if (user && matchedPassword) {
+        
         const token = generateJWT({
             email: user.email,
             _id: user.id,
@@ -85,14 +93,21 @@ const login = asyncWrapper(async (req, res, next) => {
         });
         res.status(200).json({
             status: httpStatusText.SUCCESS,
-            data: { token, role: user.role },
+            data: { token, role: user.role,id:user._id },
         });
+    }else{
+        const error = appError.create(
+            "password invalid",
+            404,
+            httpStatusText.FAIL
+        );
+        return next(error);
     }
 
-    res.status(200).json(req.body);
-});
+}); 
 module.exports = {
     getAllUsers,
+    getUser,
     register,
     login,
 };

@@ -3,12 +3,12 @@ const httpStatusCode = require("../utils/httpStatusText");
 const asyncWrapper = require("../middlewares/asyncWrapper");
 const appError = require("../utils/appError");
 const getAllFood = asyncWrapper(async (req, res) => {
-    // const query = req.query;
-    // const limit = +query.limit || 6;
-    // const page = +query.page || 1;
-    // const skip = (page - 1) * limit;
+    const query = req.query; 
+    const limit = +query.limit || 6;
+    const page = +query.page || 1;
+    const skip = (page - 1) * limit;
 
-    const food = await Food.find({}, { __v: false });
+    const food = await Food.find({}, { __v: false }).limit(limit).skip(skip);
     res.status(200).json({ status: httpStatusCode.SUCCESS, data: food });
 });
 // Food.insertMany([

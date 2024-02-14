@@ -18,7 +18,7 @@ mongoose
     })
     .catch((err) => {
         console.log("error in database==>",err);
-    });
+    }); 
 app.use(cors())
 app.use(express.json());
 app.use("/api/foods",routeFoods)

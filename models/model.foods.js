@@ -6,7 +6,7 @@ const foodsSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    price:{
+    price:{ 
         type:Number,
         required:true
     },
