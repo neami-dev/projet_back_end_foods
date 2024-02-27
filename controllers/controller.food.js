@@ -7,9 +7,15 @@ const getAllFood = asyncWrapper(async (req, res) => {
     const limit = +query.limit || 6;
     const page = +query.page || 1;
     const skip = (page - 1) * limit;
+    const title = query.title;
+    
+    if(title){
+    const food = await Food.find({title}, { __v: false }).limit(limit).skip(skip);
+    return res.status(200).json({ status: httpStatusCode.SUCCESS, data: food});
+    }
 
     const food = await Food.find({}, { __v: false }).limit(limit).skip(skip);
-    res.status(200).json({ status: httpStatusCode.SUCCESS, data: food });
+    res.status  (200).json({ status: httpStatusCode.SUCCESS, data: food});
 });
 // Food.insertMany([
 //     { 
